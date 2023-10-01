@@ -80,7 +80,7 @@ transform = transforms.Compose(
     [transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))]
 )
 train_dataset = DataLoader(
-    datasets.FashionMNIST(
+    datasets.MNIST(
         root="~/data/fashion_mnist", train=True, download=True, transform=transform
     ),
     batch_size=256,
@@ -92,3 +92,47 @@ torch.random.manual_seed(seed)
 model = SimpleFSQAutoEncoder(levels).to(device)
 opt = torch.optim.AdamW(model.parameters(), lr=lr)
 train(model, train_dataset, train_iterations=train_iter)
+
+# ---- 8< -----
+
+batch = next(iter(train_dataset))
+img, _ = batch
+img = img.to(device)
+rec_x2 = model(img)
+
+# Extracting recorded information
+temp = rec_x2[0].cpu().detach().numpy()
+
+import matplotlib.pyplot as plt
+
+# Initializing subplot counter
+counter = 1
+
+# Plotting first five images of the last batch
+for idx in range(5):
+    plt.subplot(2, 5, counter)
+    plt.title(f"index {idx}")
+    plt.imshow(temp[idx].reshape(28,28), cmap= 'gray')
+    plt.axis('off')
+
+    # Incrementing the subplot counter
+    counter+=1
+
+# Iterating over first five
+# images of the last batch
+
+# Obtaining image from the dictionary
+val = img.cpu()
+
+for idx in range(5):
+    # Plotting image
+    plt.subplot(2,5,counter)
+    plt.imshow(val[idx].reshape(28, 28), cmap = 'gray')
+    plt.title("Original Image")
+    plt.axis('off')
+
+    # Incrementing subplot counter
+    counter+=1
+
+plt.tight_layout()
+plt.savefig('figgy2.png')
